@@ -28,10 +28,11 @@ function count_coins() : int{
 	
 	// for a coin to be counted: position x within [left, right], position y >= top (due to gravity it will land on plate)
 	var plateposition = transform.position;
-	var platesize = GetComponent(BoxCollider2D).size;
-	var left = plateposition.x - 0.5*platesize.x;
-	var right = plateposition.x + 0.5*platesize.x;
-	var top = plateposition.y + 0.5*platesize.y;
+	var boxcollider = GetComponent(BoxCollider2D);
+	var platesize = boxcollider.size;
+	var left = plateposition.x - platesize.x;
+	var right = plateposition.x + platesize.x;
+	var top = plateposition.y + boxcollider.center.y; // conservative
 	
 	for (var singlecoin in coins){
 		var coinposition = singlecoin.GetComponent(Transform).position;
@@ -39,12 +40,15 @@ function count_coins() : int{
 		var coin_left = coinposition.x - 0.5 * coin_collider_size.x;
 		var coin_right = coinposition.x + 0.5 * coin_collider_size.x;
 		var coiny = coinposition.y;
+		//Debug.Log("name:" + singlecoin.name + "coin_right:" + coin_right + " coin_left:" + coin_left + " left: " + left + " right: " + right + "coiny: " + coiny + "top: " + top);
 		if(coin_right >= left && coin_left <= right && coiny >= top){
 			weight += singlecoin.GetComponent(coin).weight;
 			coincount += 1;
 			coin_array.Push(singlecoin);
 		}
 	}
+	
+	Debug.Log("coins: " + coincount);
 	
 	in_coins = coin_array.ToBuiltin(GameObject) as GameObject[];
 	

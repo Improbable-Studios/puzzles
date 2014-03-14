@@ -10,7 +10,7 @@ public var touched: boolean;
 private var myRigidBody : Rigidbody2D;
 private var myTransform : Transform;
 private var myCollider : Collider2D;
-private var canMove = false;
+private var canMove : boolean;
 private var cam : Camera;
 
 function Start () {
@@ -18,6 +18,7 @@ function Start () {
 	myTransform = GetComponent(Transform);
 	myCollider = GetComponent(Collider2D);
 	cam = Camera.main;
+	canMove = false;
 }
 
 function FixedUpdate () {	
