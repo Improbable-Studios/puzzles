@@ -4,4 +4,9 @@
 	* Right now only allow single attempt (3 scale weight checks allowed)
 	* Assume the fraudulent coin is **lighter**. 
 * To load the game into your local Unity: download the `scale_challenge.unitypackage` and import into your local (empty) project. Open the scene `scale_challenge.unity`. 
-	
+
+- - -
+
+### Coding standards
+
+* each puzzle should have 1 `master` script

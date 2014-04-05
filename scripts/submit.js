@@ -5,18 +5,18 @@
 */
 #pragma strict
 
+public var wrong_msgs : String[];
+public var success_msg : String;
+public var fail_msg : String;
+public var attempts : int;
+
 private var master_script: master;
-
-private var success_msg : String; 
-private var fail_msg : String; 
-
 private var coins : GameObject [];
 
 function Start(){
-	master_script = GameObject.Find("wallpaper").GetComponent(master);
-	success_msg = "Very good, John. You’ve correctly identified the counterfeit coin in just three moves. Most impressive, for someone of your level.";
-	fail_msg = "No, nevermind, John. I’ll just finish this myself. ";
+	master_script = GameObject.Find("puzzle").GetComponent(master);
 	coins = GameObject.FindGameObjectsWithTag("coin");
+	attempts = 0;
 }
 
 function OnCollisionEnter2D(coll:Collision2D){
@@ -34,24 +34,29 @@ function OnCollisionEnter2D(coll:Collision2D){
 		var target_y : float = boxcol.center.y + 0.5*boxcol.size.y + transform.position.y;
 		guess_coin.GetComponent(Transform).position = Vector2(target_x, target_y);		
 					
-		// display message													
+		// display message
 		var guess : String = guess_coin.name;
 		var answer : String = master_script.answer;
+		disable_coins();
+		
 		if (guess == answer){
-			master_script.display_msg = true;
-			master_script.message = success_msg; 
-			disable_coins();
+			master_script.show_msg = true;
+			master_script.msg = success_msg; 
 			
 			Debug.Log("correct!");
 		}
 		else{
-			master_script.display_msg = true;
-			master_script.message = fail_msg;
-			disable_coins();
-			
-			Debug.Log("wrong!");
-			// reset game for another attempt
-			reset_game();
+			attempts += 1;
+			if(attempts < 3){
+				master_script.show_dialog = true;
+				master_script.dialog_msg = wrong_msgs[attempts-1];
+				Debug.Log("wrong!");
+			}
+			else{
+			// failed the puzzle, load QUIT msg
+				master_script.show_msg = true;
+				master_script.msg = fail_msg;
+			}
 		}
 	}
 }
@@ -62,12 +67,4 @@ function disable_coins(){
 		single_coin.GetComponent(BoxCollider2D).enabled = false;
 		single_coin.GetComponent(Rigidbody2D).gravityScale = 0;
 	}
-}
-
-function reset_game(){
-	// disable message
-	
-	// enable gravity and colliders
-	
-
 }

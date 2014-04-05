@@ -6,6 +6,7 @@
 public var gravity : float;
 public var weight: int;
 public var touched: boolean;
+public var coin_clip : AudioClip;
 
 private var myRigidBody : Rigidbody2D;
 private var myTransform : Transform;
@@ -38,6 +39,7 @@ function OnMouseDown (){
 
 function OnMouseUp () {
 	canMove = false;
+	audio.PlayOneShot(coin_clip);
 	//enable gravity
 	//myRigidBody.gravityScale = gravity;
 }
