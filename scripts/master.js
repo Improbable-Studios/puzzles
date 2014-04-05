@@ -41,6 +41,7 @@ private var sh : float = Screen.height;
 
 // 3 check scale attempts
 private var scale_checks : int;
+public var scale_active : boolean;
 
 function Start(){
 	reset_game();
@@ -51,7 +52,8 @@ function reset_game () {
 	audio.PlayOneShot(coin_jingle);
 	
 	
-	scale_checks = 0;	
+	scale_checks = 0;
+	scale_active = true;	
 	show_dialog = false;
 	show_msg = false;
 	
@@ -63,11 +65,13 @@ function reset_game () {
 	scale_middle = GameObject.Find("scale_middle");
 	all_coins = GameObject.FindGameObjectsWithTag("coin");
 	
-	var coin_count : int = all_coins.Length;
-	
-	var j : int;
+	// resume scale balance
+	resume_scale();
 	
 	// put coins to place, enable gravity
+	var coin_count : int = all_coins.Length;
+	var j : int;
+	
 	for(j = 0; j < coin_count; j++){
 		var scoin : GameObject = all_coins[j];
 		scoin.transform.localPosition.x = coin_x + j*coin_d;
@@ -106,9 +110,13 @@ function OnGUI (){
 	var label_y : float = check_y;
 	var label_w : float = 0.03 * sw;
 	var label_h : float = label_w;
+	
+	if(scale_checks >= 3){
+		scale_active = false;
+	}
 		
 	if(GUI.Button(Rect(check_x,check_y,check_w,check_h),"", scale_btn_style)){
-		if(scale_checks < 3){
+		if(scale_active){
 			click_scale();
 		}
 	}
@@ -139,13 +147,17 @@ function click_scale(){
 		scale_middle.GetComponent(Transform).rotation.z = rotate_factor;
 	}
 	else if(left_weight == right_weight){//resume balance position
-		left_plate_script.resume_balance();
-		right_plate_script.resume_balance();
-		scale_middle.GetComponent(Transform).rotation.z = 0;
+		resume_scale();
 	}
 	
 	// add 1 to scale_checks and display
 	scale_checks += 1;
 	
+}
+
+function resume_scale(){
+	left_plate_script.resume_balance();
+	right_plate_script.resume_balance();
+	scale_middle.GetComponent(Transform).rotation.z = 0;
 }
 

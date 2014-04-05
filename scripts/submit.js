@@ -67,4 +67,6 @@ function disable_coins(){
 		single_coin.GetComponent(BoxCollider2D).enabled = false;
 		single_coin.GetComponent(Rigidbody2D).gravityScale = 0;
 	}
+	// disable scale
+	master_script.scale_active = false;
 }
