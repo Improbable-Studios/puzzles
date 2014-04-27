@@ -22,6 +22,15 @@ function Start () {
 	canMove = false;
 }
 
+function OnCollisionEnter2D(coll:Collision2D){
+	// only play sound if mouse is up, in contact with plate or other coins
+	var coll_name : String = coll.gameObject.name;
+	var coll_tag : String = coll.gameObject.tag;
+	if(!Input.GetMouseButton(0) && (coll_name == 'plate_left' || coll_name == 'plate_right' || coll_tag == 'coin')){
+		audio.PlayOneShot(coin_clip);
+	}
+}
+
 function FixedUpdate () {	
 	if (!canMove) return;
 	
@@ -39,7 +48,6 @@ function OnMouseDown (){
 
 function OnMouseUp () {
 	canMove = false;
-	audio.PlayOneShot(coin_clip);
 	//enable gravity
 	//myRigidBody.gravityScale = gravity;
 }

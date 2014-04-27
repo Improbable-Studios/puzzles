@@ -6,13 +6,15 @@
 
 // normal and special weight must be set to be primary numbers > 12 (total coins)
 public var normal_weight: int;
-public var special_weight: int;
+public var special_weight_heavier: int;
+public var special_weight_lighter : int;
+private var special_weight: int;
 public var rotate_factor : float; // 1 = 360 degrees 
 
 // coin positions & scale
 private var coin_x : float = -6.0;
-private var coin_y : float = -3.0;
-private var coin_d : float = 1.0;
+private var coin_y : float = -3.5;
+private var coin_d : float = 1.1;
 private var coin_scale : float = 2.5;
 
 // GUI and sound fields
@@ -43,14 +45,38 @@ private var sh : float = Screen.height;
 private var scale_checks : int;
 public var scale_active : boolean;
 
+// scripts
+private var submit_script : submit;
+
 function Start(){
+	submit_script = GameObject.Find("submit_coin").GetComponent(submit);
 	reset_game();
 }
 
-function reset_game () {
+function reset_coins(){
 	// play coin jingle sound
 	audio.PlayOneShot(coin_jingle);
 	
+	resume_scale();
+	
+	var coin_count : int = all_coins.Length;
+	var j : int;
+	
+	for(j = 0; j < coin_count; j++){
+		var scoin : GameObject = all_coins[j];
+		scoin.transform.localPosition.x = coin_x + j*coin_d;
+		scoin.transform.localPosition.y = coin_y;
+		scoin.transform.localScale.x = coin_scale;
+		scoin.transform.localScale.y = coin_scale;
+		scoin.GetComponent(BoxCollider2D).enabled = true;
+		scoin.GetComponent(Rigidbody2D).gravityScale = 1;
+	}
+}
+
+function reset_game () {
+	
+	// set coin_in_dish to empty
+	submit_script.coin_in_dish = new GameObject();
 	
 	scale_checks = 0;
 	scale_active = true;	
@@ -69,25 +95,26 @@ function reset_game () {
 	resume_scale();
 	
 	// put coins to place, enable gravity
-	var coin_count : int = all_coins.Length;
-	var j : int;
+	reset_coins();
 	
-	for(j = 0; j < coin_count; j++){
-		var scoin : GameObject = all_coins[j];
-		scoin.transform.localPosition.x = coin_x + j*coin_d;
-		scoin.transform.localPosition.y = coin_y;
-		scoin.transform.localScale.x = coin_scale;
-		scoin.transform.localScale.y = coin_scale;
-		scoin.GetComponent(BoxCollider2D).enabled = true;
-		scoin.GetComponent(Rigidbody2D).gravityScale = 1;
+	// counterfeit is lighter
+	special_weight = special_weight_lighter;
+	
+	/*
+	if(Random.value >= 0.5){
+		special_weight = special_weight_heavier;
 	}
-	
+	else{
+		special_weight = special_weight_lighter;
+	}*/
 	
 	// randomly pick & record answer coin
+	var coin_count : int = all_coins.Length;
+	
 	var i : int = Mathf.FloorToInt(Random.Range(0f, coin_count * 1.0 - 0.01));
 	answer = all_coins[i].name;
 	
-	for(j = 0; j < coin_count; j++){
+	for(var j : int = 0; j < coin_count; j++){
 		all_coins[j].GetComponent(coin).weight = normal_weight;
 	}
 	all_coins[i].GetComponent(coin).weight = special_weight;
@@ -102,7 +129,7 @@ function reset_game () {
 function OnGUI (){
 	// create a CHECK button in scale.
 	var check_x : float = 0.42 * sw;
-	var check_y : float = 0.625 * sh;
+	var check_y : float = 0.635 * sh;
 	var check_w : float = 0.05 * sw;
 	var check_h : float = 0.05 * sh;
 	
@@ -121,7 +148,7 @@ function OnGUI (){
 		}
 	}
 	
-	GUI.Label(Rect(label_x, label_y, label_w, label_h), scale_checks.ToString(), label_trial_style);
+	GUI.Label(Rect(label_x, label_y, label_w, label_h), (3-scale_checks).ToString(), label_trial_style);
 	
 }
 
@@ -160,4 +187,3 @@ function resume_scale(){
 	right_plate_script.resume_balance();
 	scale_middle.GetComponent(Transform).rotation.z = 0;
 }
-

@@ -2,7 +2,7 @@
 
 #pragma strict
 
-public var move_factor : float; 
+public var move_factor : float;
 
 private var weight: int;
 private var coincount: int;
