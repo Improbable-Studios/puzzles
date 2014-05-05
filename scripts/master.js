@@ -53,6 +53,15 @@ function Start(){
 	reset_game();
 }
 
+function game_pause(){
+	// coins & scale
+	submit_script.disable_coins();
+}
+
+function game_resume(){
+	submit_script.enable_coins();
+}
+
 function reset_coins(){
 	// play coin jingle sound
 	audio.PlayOneShot(coin_jingle);
