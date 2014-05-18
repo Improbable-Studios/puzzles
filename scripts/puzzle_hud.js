@@ -13,6 +13,7 @@ public var hp_red_style: GUIStyle;
 public var dialog_overlay_style: GUIStyle;
 public var dialog_right_style: GUIStyle;
 public var final_msg_style : GUIStyle;
+public var hint_style: GUIStyle;
 
 // private variables
 private var master_script : master;
@@ -42,6 +43,7 @@ private var btn_y : float = 8.83 / 100 * sh;
 private var btn_h : float = (16.67 - 8.83) / 100 * sh;
 private var btn_w : float = btn_h;
 private var btn_d : float = 1.67 / 100 * sh;
+private var btn_clicked : boolean[] = [false,false,false,false,false];
 
 // hp bar
 private var hp_x : float = 50.63/100 * sw;
@@ -68,10 +70,32 @@ private var memo_w : float = 0.85 * sw;
 private var memo_h : float = 0.85 * sh;
 private var memo_on : boolean = false;
 
+// hint
+private var hint_x : float = 0.50 * sw;
+private var hint_y : float = 0.10 * sh;
+private var hint_w : float = 0.38 * sw;
+private var hint_h : float = 0.50 * sh;
+private var hint_on : boolean = false;
+private var hint_count : int;
+
+private var hint_msgs : String[] = new String[3];
+hint_msgs[0] = "\n\n\n  You might try placing four coins on \n   each side to see if the weight balances \n  or not. If it does, you can be assured \n   that the counterfeit coin is among \n   those not on the scale. ";
+hint_msgs[1] = "\n\n\n  Now, same trick as last time. If the \n  scale tips one way when you place the \n  eight coins, remove one set of four and \n  replace them with the four unweighted \n  coins.";
+hint_msgs[2] = "\n\n\n  Repeat the first two steps. Now, if \n  the weight stays level, you know the \n  fraudulent coin is within the four coins \n  you removed from the scale. If it tips \n  in the same direction, it is clear the \n   coin is from the original four you \n  weighed. And, if it tips in the other \n  direction from before, you know the \n  fake coin is in the group of four you \n   placed during your second move.";
+
 // button enabled booleans
 private var btn_instrn_enabled : boolean = true;
 private var btn_right_enabled : boolean[] = [true,true,true,true,true];//hint, memo, reset, quit, submit
 private var game_paused : boolean = false;
+
+// for hovering
+public var mouseover_styles : GUIStyle[];
+private var mouseover_x : float = 0.80 * sw;
+private var mouseover_y : float = 9.5 / 100 * sh;
+private var mouseover_w : float = 0.1 * sw;
+private var mouseover_h : float = 0.06 * sh;
+private var tooltip : int = 5;
+
 
 function Start(){
 	master_script = GameObject.Find("puzzle").GetComponent(master);
@@ -79,6 +103,10 @@ function Start(){
 	
 	memo_on = false;
 	instrn_on = false;
+	hint_on = false;
+	
+	hint_count = 0;
+	tooltip = 5;
 	
 }
 
@@ -102,6 +130,14 @@ function OnGUI(){
 		btn_right_enabled = [false, true, false, false, false];
 		
 		GUI.Box(Rect(memo_x, memo_y, memo_w, memo_h), "", dialog_overlay_style);
+	
+	}else if(hint_on){ // hint on, display last hint msg if unlocked all hints
+		master_script.game_pause();
+		game_paused = true;
+		btn_instrn_enabled = false;
+		btn_right_enabled = [true, false, false, false, false];
+			
+		GUI.Box(Rect(hint_x, hint_y, hint_w, hint_h), hint_msgs[Mathf.Min(2, hint_count-1)], hint_style);
 	
 	}else if (instrn_on){ // instruction on
 		master_script.game_pause();
@@ -154,8 +190,21 @@ function OnGUI(){
 	// right buttons
 	for (var i : int = 0; i < btn_styles.Length; i++){
 		GUI.enabled = btn_right_enabled[i];
-		if(GUI.Button(Rect(btn_x, btn_y + i*(btn_d+btn_h), btn_w, btn_h), "", btn_styles[i])){
-			if(i == 4){
+		var rect = new Rect(btn_x, btn_y + i*(btn_d+btn_h), btn_w, btn_h);
+		if(rect.Contains(Event.current.mousePosition)){ // activate tooltips, do not clash with button click
+			tooltip = i;
+		}
+		if(GUI.Button(rect, "", btn_styles[i])){
+			btn_clicked = [false,false,false,false,false];
+			btn_clicked[i] = true;
+			if(i == 0){
+				// hint button
+				if (!hint_on){
+					hint_count += 1;
+				}
+				hint_on = !hint_on;
+			}
+			else if(i == 4){
 				// submit solution
 				//master_script.game_pause();
 				//disable_all_btns();
@@ -171,6 +220,14 @@ function OnGUI(){
 			Debug.Log("pressed: " + i);
 		}
 	}
+	
+	// TODO: right now tooltips are shaded, can we make it hidden? 
+	if((tooltip == 0 && !hint_on) || (tooltip == 1 && !memo_on)){
+		GUI.Label(Rect(mouseover_x, mouseover_y + tooltip*(btn_d+btn_h), mouseover_w, mouseover_h), "", mouseover_styles[tooltip]);	
+	}else if(tooltip < 5){
+		GUI.Label(Rect(mouseover_x, mouseover_y + tooltip*(btn_d+btn_h), mouseover_w, mouseover_h), "", mouseover_styles[tooltip]);		
+	}
+	
 	
 	GUI.enabled = true;
 	// grey hp bar

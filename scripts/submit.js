@@ -63,7 +63,7 @@ function submit_coin(guess_coin : GameObject){
 			attempts += 1;
 			if(attempts < 3){
 				master_script.show_dialog = true;
-				master_script.dialog_msg = wrong_msgs[attempts-1];
+				master_script.dialog_msg = "\n\n\n " + wrong_msgs[attempts-1];
 				Debug.Log("wrong!");
 			}
 			else{
